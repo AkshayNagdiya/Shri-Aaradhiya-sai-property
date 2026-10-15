@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import {
@@ -127,7 +127,7 @@ function HorizontalTour() {
     if (i >= 0) goTo(i);
   };
 
-  if (images.length === 0) return null;
+  if (total === 0) return null;
 
   if (reduce) {
     return (
@@ -142,242 +142,9 @@ function HorizontalTour() {
             <figcaption className="absolute inset-x-0 bottom-0 p-5">
               <p className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-gold-light">{g.category}</p>
               <p className="mt-1 font-display text-2xl text-ivory">{g.title}</p>
-            </figcaption>
-          </figure>
-        ))}
-      </div>
-    );
-  }
-
-  const current = images[stop];
-
-  return (
-    <>
-      {/* desktop: cinematic pinned tour — one giant stop at a time */}
-      <div ref={targetRef} className="relative hidden h-[400vh] md:block">
-        <div
-          className="grain sticky top-0 flex h-screen flex-col overflow-hidden bg-navy-deep"
-          role="region"
-          aria-roledescription="carousel"
-          aria-label="Guided project tour"
-        >
-          {/* crossfade backdrop — cheap opacity-only fade, no scale loops */}
-          <AnimatePresence initial={false}>
-            <motion.div
-              key={stop}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5, ease }}
-              className="absolute inset-0 will-change-transform"
-            >
-              <img
-                src={current.src}
-                alt=""
-                aria-hidden
-                loading={stop < 2 ? 'eager' : 'lazy'}
-                decoding="async"
-                className="h-full w-full object-cover"
-              />
-            </motion.div>
-          </AnimatePresence>
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-navy-deep via-navy-deep/30 to-navy-deep/60" />
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-navy-deep/70 via-transparent to-navy-deep/30" />
-
-          {/* top console */}
-          <div className="relative z-10 px-10 pt-24">
-            <div className="flex items-center justify-between gap-4">
-              <p className="eyebrow flex items-center gap-2 !text-gold">
-                Guided tour · scroll to travel
-                <motion.span style={{ opacity: cueOpacity }} className="inline-flex" aria-hidden>
-                  <motion.span
-                    animate={{ y: [0, 5, 0] }}
-                    transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-                    className="inline-block"
-                  >
-                    ↓
-                  </motion.span>
-                </motion.span>
-              </p>
-              <p aria-live="polite" className="flex shrink-0 items-center gap-2 font-display text-sm tracking-[0.25em] text-ivory/70">
-                <span className="relative inline-flex h-[1.2em] min-w-[2ch] justify-end overflow-hidden">
-                  <AnimatePresence mode="popLayout">
-                    <motion.span
-                      key={stop}
-                      initial={{ y: 14, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      exit={{ y: -14, opacity: 0 }}
-                      transition={{ duration: 0.3, ease }}
-                    >
-                      {pad(stop)}
-                    </motion.span>
-                  </AnimatePresence>
-                </span>
-                <span className="text-gold">/</span> {total}
-              </p>
-            </div>
-            <div aria-hidden className="mt-3 h-[2px] overflow-hidden rounded-full bg-ivory/15">
-              <motion.div
-                style={{ scaleX: scrollYProgress }}
-                className="h-full origin-left bg-gradient-to-r from-gold-dark via-gold to-gold-light"
-              />
-            </div>
-          </div>
-
-          {/* main row */}
-          <div className="relative z-10 flex flex-1 flex-col justify-end px-10 pb-8">
-            {/* caption */}
-            <div className="min-w-0 max-w-2xl">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={stop}
-                  variants={{ show: { transition: { staggerChildren: 0.09, delayChildren: 0.08 } }, hidden: {} }}
-                  initial="hidden"
-                  animate="show"
-                  exit={{ opacity: 0, y: -26, transition: { duration: 0.3, ease } }}
-                  aria-live="polite"
-                >
-                  <motion.p
-                    variants={rise}
-                    style={{ x: numX }}
-                    aria-hidden
-                    className="text-outline-ivory font-display text-[6rem] leading-none lg:text-[7.5rem]"
-                  >
-                    {pad(stop)}
-                  </motion.p>
-                  <motion.div variants={rise} className="mt-2 flex flex-wrap items-center gap-2">
-                    <span className="bg-gold px-3 py-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-navy-deep">
-                      Stop {pad(stop)}
-                    </span>
-                    <span className="border border-ivory/30 bg-navy-deep/55 px-3 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.2em] text-ivory backdrop-blur-sm">
-                      {current.category}
-                    </span>
-                  </motion.div>
-                  <motion.h3
-                    variants={rise}
-                    aria-label={current.title}
-                    className="mt-3 font-display text-4xl leading-[1.05] lg:text-5xl"
-                  >
-                    {current.title.split(' ').map((w, wi) => (
-                      <span
-                        key={wi}
-                        aria-hidden
-                        className="-mb-[0.12em] inline-block overflow-hidden pb-[0.12em] align-bottom"
-                      >
-                        <motion.span variants={rise} className="inline-block">
-                          {w}
-                        </motion.span>{' '}
-                      </span>
-                    ))}
-                  </motion.h3>
-                  <motion.p variants={rise} className="mt-2 max-w-md text-[15px] leading-relaxed text-ivory/70">
-                    {TOUR_COPY[current.category] ?? ''}
-                  </motion.p>
-                </motion.div>
-              </AnimatePresence>
-              <div className="mt-6 flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => goTo(stop - 1)}
-                  disabled={stop === 0}
-                  aria-label="Previous tour stop"
-                  className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-ivory/25 text-lg text-ivory transition hover:border-gold hover:text-gold-light disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-ivory/25 disabled:hover:text-ivory"
-                >
-                  ←
-                </button>
-                <button
-                  type="button"
-                  onClick={() => goTo(stop + 1)}
-                  disabled={stop === images.length - 1}
-                  aria-label="Next tour stop"
-                  className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gold text-lg text-navy-deep transition hover:bg-gold-light disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-gold"
-                >
-                  →
-                </button>
-                <Link href="/gallery" className="btn btn-ghost ml-1">
-                  Open full gallery
-                </Link>
-              </div>
-            </div>
-
-            {/* filmstrip reel */}
-            <div
-              ref={stripRef}
-              role="tablist"
-              aria-label="Tour filmstrip"
-              className="thin-scroll mt-6 flex max-w-full items-center gap-2 overflow-x-auto pb-1"
-            >
-              {images.map((g, i) => {
-                const isActive = i === stop;
-                return (
-                  <button
-                    key={g.src}
-                    type="button"
-                    role="tab"
-                    data-i={i}
-                    aria-selected={isActive}
-                    aria-label={`Go to stop ${pad(i)}: ${g.title}`}
-                    title={`${pad(i)} · ${g.title}`}
-                    onClick={() => goTo(i)}
-                    className="relative shrink-0"
-                  >
-                    <img
-                      src={g.src}
-                      alt=""
-                      aria-hidden
-                      loading="lazy"
-                      decoding="async"
-                      className={`h-12 w-20 object-cover transition-all duration-300 ${
-                        isActive ? 'opacity-100' : 'opacity-45 hover:opacity-80'
-                      }`}
-                    />
-                    {isActive && (
-                      <motion.span
-                        layoutId="tour-film-ring"
-                        transition={{ duration: 0.4, ease }}
-                        aria-hidden
-                        className="pointer-events-none absolute inset-0 ring-2 ring-inset ring-gold"
-                      />
-                    )}
-                    <span
-                      aria-hidden
-                      className={`absolute bottom-0.5 left-1 px-1 text-[9px] font-extrabold tracking-[0.14em] ${
-                        isActive ? 'bg-gold text-navy-deep' : 'bg-navy-deep/70 text-ivory/80'
-                      }`}
-                    >
-                      {pad(i)}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* mobile: cinematic stop stack */}
-      <div className="flex flex-col gap-6 px-5 pb-12 md:hidden" role="list" aria-label="Guided tour stops">
-        {images.map((g, i) => (
-          <motion.figure
-            key={g.src}
-            role="listitem"
-            initial={{ opacity: 0, y: 36 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.65, ease }}
-            className="relative overflow-hidden shadow-card"
-          >
-            <img src={g.src} alt={g.title} loading="lazy" decoding="async" className="aspect-[4/5] w-full object-cover" />
-            <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-navy-deep/90 via-navy-deep/20 to-transparent" />
-            <span className="absolute left-4 top-4 bg-gold px-3 py-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-navy-deep">
-              Stop {pad(i)}
-            </span>
-            <figcaption className="absolute inset-x-0 bottom-0 p-5">
-              <p className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-gold-light">{g.category}</p>
-              <p className="mt-1 font-display text-2xl leading-tight text-ivory">{g.title}</p>
               <p className="mt-1 text-[13.5px] leading-relaxed text-ivory/70">{TOUR_COPY[g.category] ?? ''}</p>
             </figcaption>
-          </motion.figure>
+          </figure>
         ))}
         <div className="bg-gold p-7 text-navy-deep">
           <p className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-navy-deep/70">End of tour</p>
@@ -387,7 +154,305 @@ function HorizontalTour() {
           </Link>
         </div>
       </div>
-    </>
+    );
+  }
+
+  const current = images[stop];
+  const progress = (stop + 1) / total;
+  const walkMin = stop * 4;
+  const walkKm = (0.3 + stop * 0.18).toFixed(1);
+
+  const onStageKey = (e: ReactKeyboardEvent) => {
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      step(1);
+    }
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      step(-1);
+    }
+  };
+
+  return (
+    <div className="px-5 md:px-10">
+      {/* chapter jumps */}
+      {chapters.length > 1 && (
+        <div className="thin-scroll mb-6 flex items-center gap-2 overflow-x-auto pb-1" role="group" aria-label="Jump to a chapter">
+          <span aria-hidden className="mr-1 shrink-0 text-[11px] font-bold uppercase tracking-[0.22em] text-ivory/45">
+            Chapters
+          </span>
+          {chapters.map((c) => {
+            const active = current.category === c;
+            return (
+              <button
+                key={c}
+                type="button"
+                onClick={() => jumpToChapter(c)}
+                aria-current={active ? 'true' : undefined}
+                className={`shrink-0 rounded-full border px-4 py-2 text-[11.5px] font-extrabold uppercase tracking-[0.14em] transition ${
+                  active
+                    ? 'border-gold bg-gold text-navy-deep shadow-card'
+                    : 'border-ivory/25 text-ivory/70 hover:border-gold/70 hover:text-ivory'
+                }`}
+              >
+                {c}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        {/* itinerary rail — the walk, in order */}
+        <nav aria-label="Walk itinerary" className="hidden lg:block">
+          <ol className="thin-scroll sticky top-28 max-h-[560px] space-y-1 overflow-y-auto pr-1">
+            {images.map((g, i) => {
+              const isActive = i === stop;
+              const done = i < stop;
+              return (
+                <li key={g.src}>
+                  <button
+                    type="button"
+                    onClick={() => goTo(i)}
+                    aria-current={isActive ? 'step' : undefined}
+                    className={`group relative flex w-full items-center gap-3.5 overflow-hidden px-3 py-3 text-left transition ${
+                      isActive ? 'bg-ivory/[0.07]' : 'hover:bg-ivory/[0.04]'
+                    }`}
+                  >
+                    <span
+                      aria-hidden
+                      className={`absolute inset-y-0 left-0 w-[3px] transition ${
+                        isActive ? 'bg-gold' : 'bg-transparent group-hover:bg-ivory/20'
+                      }`}
+                    />
+                    <span
+                      aria-hidden
+                      className={`inline-flex h-9 w-9 shrink-0 items-center justify-center font-display text-[13px] font-bold transition ${
+                        isActive
+                          ? 'bg-gold text-navy-deep'
+                          : done
+                            ? 'bg-emerald-400/20 text-emerald-300'
+                            : 'bg-ivory/10 text-ivory/60 group-hover:text-ivory'
+                      }`}
+                    >
+                      {done && !isActive ? <Check size={15} /> : pad(i)}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className={`block truncate text-[14.5px] font-bold transition ${isActive ? 'text-ivory' : 'text-ivory/75 group-hover:text-ivory'}`}>
+                        {g.title}
+                      </span>
+                      <span className="mt-0.5 block text-[11.5px] font-semibold uppercase tracking-[0.14em] text-gold-light/70">
+                        {g.category} · min {i * 4}–{i * 4 + 4}
+                      </span>
+                    </span>
+                    {isActive && (
+                      <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />
+                    )}
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+          <div className="mt-4 border border-gold/35 bg-gold/[0.08] p-5">
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-gold-light">End of walk</p>
+            <p className="mt-1.5 font-display text-[22px] leading-snug text-ivory">Come walk it for real.</p>
+            <Link href="/gallery" className="btn mt-4 bg-gold px-6 py-3 text-navy-deep hover:bg-gold-light">
+              Open gallery <ArrowUpRight size={14} aria-hidden />
+            </Link>
+          </div>
+        </nav>
+
+        {/* stage — the current stop */}
+        <div
+          role="region"
+          aria-roledescription="carousel"
+          aria-label={`Guided tour stop ${pad(stop)} of ${totalLabel}: ${current.title}`}
+          tabIndex={0}
+          onKeyDown={onStageKey}
+          className="overflow-hidden shadow-card outline-none focus-visible:ring-2 focus-visible:ring-gold"
+        >
+          <div className="relative aspect-[4/3] overflow-hidden bg-navy sm:aspect-[16/9]">
+            <AnimatePresence initial={false}>
+              <motion.div
+                key={stop}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.45, ease }}
+                className="absolute inset-0"
+              >
+                <img
+                  src={current.src}
+                  alt={current.title}
+                  loading={stop < 2 ? 'eager' : 'lazy'}
+                  decoding="async"
+                  className="h-full w-full object-cover"
+                />
+              </motion.div>
+            </AnimatePresence>
+            <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-navy-deep/85 via-transparent to-navy-deep/35" />
+
+            {/* top console */}
+            <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4 md:p-5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="bg-gold px-3 py-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.2em] text-navy-deep">
+                  Stop {pad(stop)}
+                </span>
+                <span className="border border-ivory/30 bg-navy-deep/55 px-3 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.2em] text-ivory backdrop-blur-sm">
+                  {current.category}
+                </span>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <span aria-live="polite" className="bg-navy-deep/55 px-3 py-1.5 font-display text-[13px] tracking-[0.2em] text-ivory backdrop-blur-sm">
+                  {pad(stop)} <span aria-hidden className="text-gold">/</span> {totalLabel}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setPlaying((p) => !p)}
+                  aria-pressed={playing}
+                  aria-label={playing ? 'Pause auto-walk' : 'Play auto-walk'}
+                  title={playing ? 'Pause auto-walk' : 'Play auto-walk'}
+                  className={`inline-flex h-9 w-9 items-center justify-center backdrop-blur-sm transition ${
+                    playing
+                      ? 'bg-gold text-navy-deep hover:bg-gold-light'
+                      : 'bg-navy-deep/55 text-ivory hover:text-gold-light'
+                  }`}
+                >
+                  {playing ? <Pause size={15} aria-hidden /> : <Play size={15} aria-hidden />}
+                </button>
+              </div>
+            </div>
+
+            {/* bottom walk meta + progress */}
+            <div className="absolute inset-x-0 bottom-0 p-4 md:p-5">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11.5px] font-bold uppercase tracking-[0.16em] text-ivory/85">
+                <span className="inline-flex items-center gap-1.5">
+                  <Footprints size={14} aria-hidden className="text-gold-light" /> {walkKm} km in
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Clock size={14} aria-hidden className="text-gold-light" /> min {walkMin}–{walkMin + 4}
+                </span>
+              </div>
+              <div aria-hidden className="mt-2.5 h-[3px] overflow-hidden rounded-full bg-ivory/20">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-gold-dark via-gold to-gold-light transition-[width] duration-500"
+                  style={{ width: `${progress * 100}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* caption card */}
+          <div className="border border-t-0 border-ivory/15 bg-white/[0.04] p-5 backdrop-blur-sm md:p-7">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={stop}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.35, ease }}
+                aria-live="polite"
+              >
+                <p aria-hidden className="font-display text-[13px] font-bold tracking-[0.3em] text-gold-light/70">
+                  {pad(stop)} — {current.category}
+                </p>
+                <h3 className="mt-2 font-display text-3xl leading-[1.05] text-ivory md:text-4xl">{current.title}</h3>
+                <p className="mt-2.5 max-w-xl text-[15px] leading-relaxed text-ivory/70">
+                  {TOUR_COPY[current.category] ?? ''}
+                </p>
+                <p className="mt-4 flex items-start gap-2.5 border border-gold/30 bg-gold/[0.09] px-4 py-3 text-[13.5px] leading-relaxed text-ivory/85">
+                  <MapPin size={15} aria-hidden className="mt-0.5 shrink-0 text-gold-light" />
+                  <span>
+                    <strong className="font-bold text-gold-light">On site, check — </strong>
+                    {TOUR_TIPS[current.category] ?? ''}
+                  </span>
+                </p>
+              </motion.div>
+            </AnimatePresence>
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => step(-1)}
+                aria-label="Previous tour stop"
+                className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-ivory/25 text-lg text-ivory transition hover:border-gold hover:text-gold-light"
+              >
+                ←
+              </button>
+              <button
+                type="button"
+                onClick={() => step(1)}
+                aria-label="Next tour stop"
+                className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gold text-lg text-navy-deep transition hover:bg-gold-light"
+              >
+                →
+              </button>
+              <Link href="/gallery" className="btn btn-ghost ml-1">
+                Open full gallery
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* mobile filmstrip */}
+      <div
+        ref={stripRef}
+        role="tablist"
+        aria-label="Tour filmstrip"
+        className="thin-scroll mt-6 flex max-w-full items-center gap-2 overflow-x-auto pb-1 lg:hidden"
+      >
+        {images.map((g, i) => {
+          const isActive = i === stop;
+          return (
+            <button
+              key={g.src}
+              type="button"
+              role="tab"
+              data-i={i}
+              aria-selected={isActive}
+              aria-label={`Go to stop ${pad(i)}: ${g.title}`}
+              title={`${pad(i)} · ${g.title}`}
+              onClick={() => goTo(i)}
+              className="relative shrink-0"
+            >
+              <img
+                src={g.src}
+                alt=""
+                aria-hidden
+                loading="lazy"
+                decoding="async"
+                className={`h-14 w-24 object-cover transition duration-300 ${
+                  isActive ? 'opacity-100' : 'opacity-45 hover:opacity-80'
+                }`}
+              />
+              {isActive && (
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 ring-2 ring-inset ring-gold"
+                />
+              )}
+              <span
+                aria-hidden
+                className={`absolute bottom-0.5 left-1 px-1 text-[9px] font-extrabold tracking-[0.14em] ${
+                  isActive ? 'bg-gold text-navy-deep' : 'bg-navy-deep/70 text-ivory/80'
+                }`}
+              >
+                {pad(i)}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* mobile end card */}
+      <div className="mt-6 bg-gold p-7 text-navy-deep lg:hidden">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-navy-deep/70">End of tour</p>
+        <p className="mt-2 font-display text-3xl leading-tight">Come walk it for real.</p>
+        <Link href="/gallery" className="btn mt-5 bg-navy-deep px-7 py-3.5 text-ivory">
+          Open gallery <ArrowUpRight size={15} aria-hidden />
+        </Link>
+      </div>
+    </div>
   );
 }
 
@@ -1010,18 +1075,35 @@ export default function Home() {
         <PlotsExplorer />
       </section>
 
-      {/* horizontal tour */}
+      {/* guided walk */}
       <section aria-labelledby="tour-h" className="bg-navy-deep text-ivory">
         <div className="gold-rule" aria-hidden />
         <div className="mx-auto max-w-shell px-5 pt-16 md:px-10 md:pt-20">
           <Reveal>
-            <p className="eyebrow !text-gold">Guided tour</p>
-            <h2 id="tour-h" className="mt-4 font-display font-h2">
-              Take the Walk, Stop by Stop.
-            </h2>
+            <p className="eyebrow !text-gold">Guided walk</p>
+            <div className="mt-4 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+              <h2 id="tour-h" className="max-w-2xl font-display font-h2">
+                Take the Walk, Stop by Stop.
+              </h2>
+              <p className="max-w-md text-[15px] leading-relaxed text-ivory/65">
+                The exact route our team walks with every visitor — gates to gardens
+                to turfs. Preview it here, then come feel it under your own feet.
+              </p>
+            </div>
+            <ul className="mt-6 flex flex-wrap items-center gap-2" aria-label="Walk facts">
+              <li className="inline-flex items-center gap-1.5 border border-ivory/20 bg-ivory/[0.05] px-4 py-2 text-[11.5px] font-bold uppercase tracking-[0.16em] text-ivory/85">
+                <Footprints size={14} aria-hidden className="text-gold-light" /> 1.2 km loop
+              </li>
+              <li className="inline-flex items-center gap-1.5 border border-ivory/20 bg-ivory/[0.05] px-4 py-2 text-[11.5px] font-bold uppercase tracking-[0.16em] text-ivory/85">
+                <Clock size={14} aria-hidden className="text-gold-light" /> 45 min · easy pace
+              </li>
+              <li className="inline-flex items-center gap-1.5 border border-ivory/20 bg-ivory/[0.05] px-4 py-2 text-[11.5px] font-bold uppercase tracking-[0.16em] text-ivory/85">
+                <MapPin size={14} aria-hidden className="text-gold-light" /> 5 chapters
+              </li>
+            </ul>
           </Reveal>
         </div>
-        <div className="mt-8 pb-16 md:pb-20">
+        <div className="mx-auto mt-8 max-w-shell pb-16 md:pb-20">
           <HorizontalTour />
         </div>
         <div className="gold-rule" aria-hidden />

@@ -26,6 +26,7 @@ export const viewport: Viewport = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const { project } = await getCmsData();
+  const base = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
   const title = `${project.marketer} — The Name of Trust | ${project.name}, Mhow`;
   const description =
     `${project.marketer} — ${project.marketerTagline}, ${project.marketerSince}. ` +
@@ -33,6 +34,7 @@ export async function generateMetadata(): Promise<Metadata> {
     `(600–1000 sq.ft., east & west facing) at ${project.location}, ` +
     `with bank loans from all leading banks.`;
   return {
+    metadataBase: new URL(base),
     title,
     description,
     openGraph: {

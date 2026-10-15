@@ -77,10 +77,23 @@ function toGallery(d: Record<string, unknown>): GalleryImage {
  * Falls back to static data if CMS is down/slow — never blocks first paint long.
  */
 const TTL_MS = 30_000;
+/** When the DB is down, don't hammer DNS on every request — back off. */
+const FAIL_TTL_MS = 120_000;
 let memCache: { at: number; data: CmsSnapshot } | null = null;
+let lastFailAt = 0;
 
 const fetchSnapshot = cache(async (): Promise<CmsSnapshot> => {
   if (memCache && Date.now() - memCache.at < TTL_MS) return memCache.data;
+  if (Date.now() - lastFailAt < FAIL_TTL_MS) {
+    return {
+      project: fallbackProject,
+      plots: fallbackPlots,
+      amenities: fallbackAmenities,
+      gallery: fallbackGallery,
+      banks: fallbackBanks,
+      live: false,
+    };
+  }
   const snapshot: CmsSnapshot = {
     project: fallbackProject,
     plots: fallbackPlots,
@@ -147,6 +160,8 @@ const fetchSnapshot = cache(async (): Promise<CmsSnapshot> => {
     snapshot.live = true;
   } catch {
     // CMS unreachable/slow (e.g. DB down at build time) — static fallback keeps pages rendering.
+    // Record the failure so we back off instead of hammering DNS on every request.
+    lastFailAt = Date.now();
   }
 
   if (snapshot.live) memCache = { at: Date.now(), data: snapshot };

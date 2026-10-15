@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, MapPin, Phone } from 'lucide-react';
@@ -69,6 +69,107 @@ export function NewsletterForm() {
         <p className="mt-2 text-[13px] text-ivory/65">Demo only — or call {PROJECT.phones[0].display} for instant updates.</p>
       )}
     </form>
+  );
+}
+
+/* Torch reveal — hovering the SASP mark shines a light that follows the
+   pointer and reveals the Sai Baba portrait inside the letterforms.
+   Position updates mutate CSS vars directly (no re-renders), so it stays smooth. */
+function SaspTorch() {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const torchRef = useRef<HTMLSpanElement>(null);
+  const glowRef = useRef<HTMLSpanElement>(null);
+
+  const move = (clientX: number, clientY: number) => {
+    const wrap = wrapRef.current;
+    const torch = torchRef.current;
+    if (!wrap || !torch) return;
+    const r = wrap.getBoundingClientRect();
+    const x = `${clientX - r.left}px`;
+    const y = `${clientY - r.top}px`;
+    torch.style.setProperty('--tx', x);
+    torch.style.setProperty('--ty', y);
+    torch.style.opacity = '1';
+    if (glowRef.current) {
+      glowRef.current.style.setProperty('--tx', x);
+      glowRef.current.style.setProperty('--ty', y);
+      glowRef.current.style.opacity = '1';
+    }
+  };
+
+  const hide = () => {
+    if (torchRef.current) torchRef.current.style.opacity = '0';
+    if (glowRef.current) glowRef.current.style.opacity = '0';
+  };
+
+  const showCenter = () => {
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+    const r = wrap.getBoundingClientRect();
+    move(r.left + r.width / 2, r.top + r.height / 2);
+  };
+
+  return (
+    <div className="mt-10 select-none">
+      <div
+        ref={wrapRef}
+        aria-hidden
+        tabIndex={0}
+        onMouseMove={(e) => move(e.clientX, e.clientY)}
+        onMouseLeave={hide}
+        onTouchMove={(e) => {
+          const t = e.touches[0];
+          if (t) move(t.clientX, t.clientY);
+        }}
+        onTouchEnd={hide}
+        onFocus={showCenter}
+        onBlur={hide}
+        className="relative cursor-crosshair overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-gold"
+      >
+        {/* base outline mark */}
+        <p className="text-outline-gold whitespace-nowrap text-center font-display text-[clamp(3.5rem,14vw,11rem)] font-semibold leading-none tracking-[0.06em]">
+          SASP
+        </p>
+        {/* warm torch glow that trails the pointer */}
+        <span
+          ref={glowRef}
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300"
+          style={{
+            background:
+              'radial-gradient(circle 140px at var(--tx, 50%) var(--ty, 50%), rgba(241,229,198,0.30), rgba(198,161,91,0.12) 45%, transparent 70%)',
+          }}
+        />
+        {/* portrait-filled letters, visible only where the torch shines */}
+        <span
+          ref={torchRef}
+          className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300"
+          style={{
+            WebkitMaskImage:
+              'radial-gradient(circle 160px at var(--tx, 50%) var(--ty, 50%), black 0%, rgba(0,0,0,0.9) 35%, transparent 70%)',
+            maskImage:
+              'radial-gradient(circle 160px at var(--tx, 50%) var(--ty, 50%), black 0%, rgba(0,0,0,0.9) 35%, transparent 70%)',
+          }}
+        >
+          <span
+            className="whitespace-nowrap text-center font-display text-[clamp(3.5rem,14vw,11rem)] font-semibold leading-none tracking-[0.06em]"
+            style={{
+              color: 'transparent',
+              backgroundImage:
+                "url('/images/vector-illustration-sai-baba-gold-matte-gradient-saibaba-portrait-245937046.jpg')",
+              backgroundSize: 'cover',
+              backgroundPosition: 'center 20%',
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text',
+            }}
+          >
+            SASP
+          </span>
+        </span>
+      </div>
+      <p className="mt-3 text-center text-[11px] font-bold uppercase tracking-[0.3em] text-gold-light/60">
+        Move your torch across the mark
+      </p>
+    </div>
   );
 }
 
@@ -206,11 +307,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div aria-hidden className="mt-10 select-none overflow-hidden">
-          <p className="text-outline-gold whitespace-nowrap text-center font-display text-[clamp(3.5rem,14vw,11rem)] font-semibold leading-none tracking-[0.06em]">
-            SASP
-          </p>
-        </div>
+        <SaspTorch />
 
         <div className="mt-10 flex flex-col gap-4 border-t border-ivory/12 pt-7 text-[13px] text-ivory/65 md:flex-row md:items-center md:justify-between">
           <p>© 2026 {PROJECT.marketer} · Surya Greens. Content as per official project brochure.</p>
