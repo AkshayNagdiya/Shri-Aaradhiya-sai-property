@@ -437,7 +437,7 @@ export default function Header() {
                     className="relative transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
                   />
                 </Link>
-                <button
+                <button suppressHydrationWarning
                   type="button"
                   onClick={() => setOpen((v) => !v)}
                   aria-expanded={open}
@@ -733,7 +733,7 @@ export default function Header() {
                           {active && <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-gold" />}
                         </Link>
                         {expandable ? (
-                          <button
+                          <button suppressHydrationWarning
                             type="button"
                             aria-expanded={expanded}
                             aria-label={`Expand ${l.label} submenu`}

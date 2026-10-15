@@ -265,7 +265,7 @@ function HorizontalTour() {
                 </motion.div>
               </AnimatePresence>
               <div className="mt-6 flex flex-wrap items-center gap-3">
-                <button
+                <button suppressHydrationWarning
                   type="button"
                   onClick={() => goTo(stop - 1)}
                   disabled={stop === 0}
@@ -274,7 +274,7 @@ function HorizontalTour() {
                 >
                   ←
                 </button>
-                <button
+                <button suppressHydrationWarning
                   type="button"
                   onClick={() => goTo(stop + 1)}
                   disabled={stop === images.length - 1}
@@ -299,7 +299,7 @@ function HorizontalTour() {
               {images.map((g, i) => {
                 const isActive = i === stop;
                 return (
-                  <button
+                  <button suppressHydrationWarning
                     key={g.src}
                     type="button"
                     role="tab"
@@ -416,7 +416,7 @@ function Faq() {
         const isOpen = open === i;
         return (
           <div key={f.q}>
-            <button
+            <button suppressHydrationWarning
               type="button"
               onClick={() => setOpen(isOpen ? null : i)}
               aria-expanded={isOpen}
@@ -498,7 +498,7 @@ function PlotsExplorer() {
           <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter plots by facing">
             <span className="mr-1 text-[11px] font-bold uppercase tracking-[0.2em] text-ink-faint">Facing</span>
             {(['All', 'East', 'West'] as FacingFilter[]).map((f) => (
-              <button
+              <button suppressHydrationWarning
                 key={f}
                 type="button"
                 aria-pressed={facing === f}
@@ -520,7 +520,7 @@ function PlotsExplorer() {
             <label htmlFor="plot-sort" className="text-[11px] font-bold uppercase tracking-[0.2em] text-ink-faint">
               Sort
             </label>
-            <select
+            <select suppressHydrationWarning
               id="plot-sort"
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
@@ -553,7 +553,7 @@ function PlotsExplorer() {
               >
                 <div className="relative h-full">
                   <PlotCard plot={p} />
-                  <button
+                  <button suppressHydrationWarning
                     type="button"
                     onClick={() => toggleCompare(p.id)}
                     aria-pressed={selected}
@@ -592,7 +592,7 @@ function PlotsExplorer() {
                   Compare {compareIds.length}/3
                 </span>
                 {compared.map((p) => (
-                  <button
+                  <button suppressHydrationWarning
                     key={p.id}
                     type="button"
                     onClick={() => toggleCompare(p.id)}
@@ -604,7 +604,7 @@ function PlotsExplorer() {
                 ))}
               </div>
               <div className="flex items-center gap-2">
-                <button
+                <button suppressHydrationWarning
                   type="button"
                   onClick={() => setCompareOpen(true)}
                   disabled={compareIds.length < 2}
@@ -612,7 +612,7 @@ function PlotsExplorer() {
                 >
                   Compare now
                 </button>
-                <button
+                <button suppressHydrationWarning
                   type="button"
                   onClick={() => setCompareIds([])}
                   className="u-link px-2 py-3 text-[12px] font-bold uppercase tracking-[0.16em] text-ivory/70 hover:text-ivory"
@@ -652,7 +652,7 @@ function PlotsExplorer() {
                   <p className="eyebrow">Side by side</p>
                   <h3 className="mt-2 font-display text-2xl text-navy-deep md:text-3xl">Compare plots</h3>
                 </div>
-                <button
+                <button suppressHydrationWarning
                   type="button"
                   onClick={() => setCompareOpen(false)}
                   autoFocus
@@ -792,7 +792,7 @@ function AmenityDeckNav() {
         {AMENITY_NAV.map((a) => {
           const isActive = active === a.id;
           return (
-            <button
+            <button suppressHydrationWarning
               key={a.id}
               type="button"
               onClick={() => jump(a.id)}

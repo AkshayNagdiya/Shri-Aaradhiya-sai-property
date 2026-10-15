@@ -40,7 +40,7 @@ function EmiCalc() {
       <label className="mt-5 block text-[14px] font-semibold text-ink">
         Loan amount · <span className="text-navy-deep">₹{amount.toLocaleString('en-IN')}</span>
       </label>
-      <input
+      <input suppressHydrationWarning
         type="range"
         min={500000}
         max={5000000}
@@ -53,7 +53,7 @@ function EmiCalc() {
       <label className="mt-4 block text-[14px] font-semibold text-ink">
         Tenure · <span className="text-navy-deep">{years} years</span>
       </label>
-      <input
+      <input suppressHydrationWarning
         type="range"
         min={5}
         max={25}
@@ -132,7 +132,7 @@ export default function PlotDetail() {
     <div className="pt-[68px] md:pt-[106px]">
       <div className="mx-auto max-w-shell px-5 pt-8 md:px-10 md:pt-12">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <button
+          <button suppressHydrationWarning
             type="button"
             onClick={() => router.back()}
             className="inline-flex items-center gap-1.5 text-[12.5px] font-bold uppercase tracking-[0.18em] text-gold-dark"
@@ -189,10 +189,10 @@ export default function PlotDetail() {
               {index + 1} / {plot.images.length}
             </p>
             <div className="flex gap-2">
-              <button type="button" onClick={() => go(-1)} aria-label="Previous photo" className="inline-flex h-11 w-11 items-center justify-center bg-ivory text-navy-deep transition hover:bg-white">
+              <button suppressHydrationWarning type="button" onClick={() => go(-1)} aria-label="Previous photo" className="inline-flex h-11 w-11 items-center justify-center bg-ivory text-navy-deep transition hover:bg-white">
                 <ChevronLeft size={20} />
               </button>
-              <button type="button" onClick={() => go(1)} aria-label="Next photo" className="inline-flex h-11 w-11 items-center justify-center bg-ivory text-navy-deep transition hover:bg-white">
+              <button suppressHydrationWarning type="button" onClick={() => go(1)} aria-label="Next photo" className="inline-flex h-11 w-11 items-center justify-center bg-ivory text-navy-deep transition hover:bg-white">
                 <ChevronRight size={20} />
               </button>
             </div>
@@ -200,7 +200,7 @@ export default function PlotDetail() {
         </div>
         <div className="thin-scroll mt-3 flex gap-3 overflow-x-auto pb-1" role="group" aria-label="Choose render">
           {plot.images.map((src, i) => (
-            <button
+            <button suppressHydrationWarning
               key={src + i}
               type="button"
               aria-pressed={i === index}

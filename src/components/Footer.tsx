@@ -38,12 +38,12 @@ export function NewsletterForm() {
   }
 
   return (
-    <form onSubmit={submit} noValidate aria-label="Project updates signup">
+    <form suppressHydrationWarning onSubmit={submit} noValidate aria-label="Project updates signup">
       <label htmlFor="newsletter-email" className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.2em] text-ivory/60">
         Project updates &amp; new releases
       </label>
       <div className="flex flex-col gap-2 sm:flex-row">
-        <input
+        <input suppressHydrationWarning
           id="newsletter-email"
           type="email"
           autoComplete="email"
@@ -57,7 +57,7 @@ export function NewsletterForm() {
           aria-describedby={error ? 'newsletter-error' : undefined}
           className="field-dark flex-1"
         />
-        <button type="submit" className="btn bg-gold px-6 py-3.5 text-navy-deep hover:bg-gold-light">
+        <button suppressHydrationWarning type="submit" className="btn bg-gold px-6 py-3.5 text-navy-deep hover:bg-gold-light">
           Notify me
         </button>
       </div>
