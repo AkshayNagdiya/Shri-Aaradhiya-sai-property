@@ -49,13 +49,13 @@ export default function InquiryForm({ subject }: { subject: string }) {
   const inputCls = (err?: string) => `field ${err ? 'border-red-700 ring-2 ring-red-700/15' : ''}`;
 
   return (
-    <form onSubmit={submit} noValidate aria-label={`Enquire about ${subject}`} className="grid gap-4">
+    <form suppressHydrationWarning onSubmit={submit} noValidate aria-label={`Enquire about ${subject}`} className="grid gap-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="inq-name" className="mb-1.5 block text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
             Full name *
           </label>
-          <input
+          <input suppressHydrationWarning
             id="inq-name"
             autoComplete="name"
             className={inputCls(errors.name)}
@@ -71,7 +71,7 @@ export default function InquiryForm({ subject }: { subject: string }) {
           <label htmlFor="inq-email" className="mb-1.5 block text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
             Email *
           </label>
-          <input
+          <input suppressHydrationWarning
             id="inq-email"
             type="email"
             autoComplete="email"
@@ -89,7 +89,7 @@ export default function InquiryForm({ subject }: { subject: string }) {
         <label htmlFor="inq-phone" className="mb-1.5 block text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
           Phone (optional)
         </label>
-        <input
+        <input suppressHydrationWarning
           id="inq-phone"
           type="tel"
           autoComplete="tel"
@@ -106,7 +106,7 @@ export default function InquiryForm({ subject }: { subject: string }) {
         <label htmlFor="inq-msg" className="mb-1.5 block text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
           Message *
         </label>
-        <textarea
+        <textarea suppressHydrationWarning
           id="inq-msg"
           rows={4}
           className={`${inputCls(errors.message)} resize-y`}
@@ -118,7 +118,7 @@ export default function InquiryForm({ subject }: { subject: string }) {
         />
         {errors.message ? <p id="inq-msg-err" role="alert" className="mt-1.5 text-sm text-red-800">{errors.message}</p> : null}
       </div>
-      <button type="submit" className="btn btn-primary w-full sm:w-auto">
+      <button suppressHydrationWarning type="submit" className="btn btn-primary w-full sm:w-auto">
         Request site visit
       </button>
       <p className="text-[13px] text-ink-faint">Demo form — for instant help call 77249-85563 / 91316-44787.</p>

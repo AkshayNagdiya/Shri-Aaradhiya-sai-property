@@ -104,7 +104,7 @@ export default function Contact() {
                 please call <a className="font-bold text-navy-deep underline" href={PROJECT.phones[0].href}>{PROJECT.phones[0].display}</a>.
                 Demo form — nothing was transmitted online.
               </p>
-              <button
+              <button suppressHydrationWarning
                 type="button"
                 onClick={() => { setDone(false); setV({ name: '', email: '', phone: '', interest: '600–800 sq.ft. plot', message: '' }); }}
                 className="btn btn-outline-dark mt-6"
@@ -113,27 +113,27 @@ export default function Contact() {
               </button>
             </div>
           ) : (
-            <form onSubmit={submit} noValidate aria-label="Site visit request form" className="border border-line p-6 md:p-8">
+            <form suppressHydrationWarning onSubmit={submit} noValidate aria-label="Site visit request form" className="border border-line p-6 md:p-8">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="c-name" className="mb-1.5 block text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Name *</label>
-                  <input id="c-name" autoComplete="name" className={errCls(errs.name)} value={v.name} onChange={(e) => set('name', e.target.value)} placeholder="Your full name" aria-invalid={Boolean(errs.name)} />
+                  <input suppressHydrationWarning id="c-name" autoComplete="name" className={errCls(errs.name)} value={v.name} onChange={(e) => set('name', e.target.value)} placeholder="Your full name" aria-invalid={Boolean(errs.name)} />
                   {errs.name ? <p role="alert" className="mt-1.5 text-sm text-red-800">{errs.name}</p> : null}
                 </div>
                 <div>
                   <label htmlFor="c-phone" className="mb-1.5 block text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Phone *</label>
-                  <input id="c-phone" type="tel" autoComplete="tel" className={errCls(errs.phone)} value={v.phone} onChange={(e) => set('phone', e.target.value)} placeholder="+91 …" aria-invalid={Boolean(errs.phone)} />
+                  <input suppressHydrationWarning id="c-phone" type="tel" autoComplete="tel" className={errCls(errs.phone)} value={v.phone} onChange={(e) => set('phone', e.target.value)} placeholder="+91 …" aria-invalid={Boolean(errs.phone)} />
                   {errs.phone ? <p role="alert" className="mt-1.5 text-sm text-red-800">{errs.phone}</p> : null}
                 </div>
               </div>
               <div className="mt-4">
                 <label htmlFor="c-email" className="mb-1.5 block text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Email *</label>
-                <input id="c-email" type="email" autoComplete="email" className={errCls(errs.email)} value={v.email} onChange={(e) => set('email', e.target.value)} placeholder="you@example.com" aria-invalid={Boolean(errs.email)} />
+                <input suppressHydrationWarning id="c-email" type="email" autoComplete="email" className={errCls(errs.email)} value={v.email} onChange={(e) => set('email', e.target.value)} placeholder="you@example.com" aria-invalid={Boolean(errs.email)} />
                 {errs.email ? <p role="alert" className="mt-1.5 text-sm text-red-800">{errs.email}</p> : null}
               </div>
               <div className="mt-4">
                 <label htmlFor="c-interest" className="mb-1.5 block text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">I’m interested in</label>
-                <select id="c-interest" className="field" value={v.interest} onChange={(e) => set('interest', e.target.value)}>
+                <select suppressHydrationWarning id="c-interest" className="field" value={v.interest} onChange={(e) => set('interest', e.target.value)}>
                   <option>600–800 sq.ft. plot</option>
                   <option>875–925 sq.ft. plot</option>
                   <option>976–1000 sq.ft. premium plot</option>
@@ -144,10 +144,10 @@ export default function Contact() {
               </div>
               <div className="mt-4">
                 <label htmlFor="c-msg" className="mb-1.5 block text-[12px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Message *</label>
-                <textarea id="c-msg" rows={5} className={`${errCls(errs.message)} resize-y`} value={v.message} onChange={(e) => set('message', e.target.value)} placeholder="I’d like to visit this Sunday morning with family…" />
+                <textarea suppressHydrationWarning id="c-msg" rows={5} className={`${errCls(errs.message)} resize-y`} value={v.message} onChange={(e) => set('message', e.target.value)} placeholder="I’d like to visit this Sunday morning with family…" />
                 {errs.message ? <p role="alert" className="mt-1.5 text-sm text-red-800">{errs.message}</p> : null}
               </div>
-              <button type="submit" className="btn btn-primary mt-6 w-full sm:w-auto">Request site visit</button>
+              <button suppressHydrationWarning type="submit" className="btn btn-primary mt-6 w-full sm:w-auto">Request site visit</button>
               <p className="mt-3 text-[13px] text-ink-faint">Demo form — for instant help call {PROJECT.phones[0].display}.</p>
             </form>
           )}

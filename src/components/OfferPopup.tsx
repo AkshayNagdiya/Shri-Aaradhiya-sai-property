@@ -82,7 +82,7 @@ export default function OfferPopup() {
             className="relative w-full max-w-lg border border-gold/40 bg-ivory p-6 shadow-card md:p-9"
           >
             <div className="gold-rule absolute inset-x-0 top-0" aria-hidden />
-            <button
+            <button suppressHydrationWarning
               type="button"
               onClick={() => setOpen(false)}
               autoFocus

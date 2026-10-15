@@ -55,14 +55,14 @@ export default function CookieConsent() {
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <button
+              <button suppressHydrationWarning
                 type="button"
                 onClick={() => choose('declined')}
                 className="u-link px-3 py-3 text-[12px] font-bold uppercase tracking-[0.16em] text-ink-muted hover:text-ink"
               >
                 Decline
               </button>
-              <button
+              <button suppressHydrationWarning
                 type="button"
                 onClick={() => choose('accepted')}
                 className="btn btn-primary px-6 py-3 text-[12px]"

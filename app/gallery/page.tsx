@@ -81,7 +81,7 @@ export default function Gallery() {
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {group.items.map((g, i) => (
                 <Reveal key={g.src} delay={Math.min(i * 0.04, 0.25)}>
-                  <button
+                  <button suppressHydrationWarning
                     type="button"
                     onClick={() => setLightbox(gallery.findIndex((x) => x.src === g.src))}
                     className="zoom-frame group block w-full text-left"
@@ -135,7 +135,7 @@ export default function Gallery() {
           className="fixed inset-0 z-[60] flex items-center justify-center bg-navy-deep/95 p-4 md:p-10"
           onClick={() => setLightbox(null)}
         >
-          <button
+          <button suppressHydrationWarning
             type="button"
             onClick={() => setLightbox(null)}
             autoFocus
@@ -144,7 +144,7 @@ export default function Gallery() {
           >
             ✕
           </button>
-          <button
+          <button suppressHydrationWarning
             type="button"
             aria-label="Previous render"
             onClick={(e) => { e.stopPropagation(); setLightbox((v) => (v !== null && v > 0 ? v - 1 : v)); }}
@@ -152,7 +152,7 @@ export default function Gallery() {
           >
             <ArrowLeft size={20} aria-hidden />
           </button>
-          <button
+          <button suppressHydrationWarning
             type="button"
             aria-label="Next render"
             onClick={(e) => { e.stopPropagation(); setLightbox((v) => (v !== null && v < gallery.length - 1 ? v + 1 : v)); }}
