@@ -24,6 +24,8 @@ import { developmentSpecs, plotSizes } from '../../../src/data/project';
 import { useCms } from '../../../src/lib/cms';
 import { usePageMeta } from '../../../src/lib/seo';
 
+export const dynamic = 'force-dynamic';
+
 function EmiCalc() {
   const [amount, setAmount] = useState(1500000);
   const [years, setYears] = useState(15);

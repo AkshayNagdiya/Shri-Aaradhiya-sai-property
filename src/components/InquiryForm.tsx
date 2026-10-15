@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { FormEvent } from 'react';
+import { submitInquiry } from '../lib/inquiries';
 
 interface Errors {
   name?: string;
@@ -14,13 +15,15 @@ export default function InquiryForm({ subject }: { subject: string }) {
   const [values, setValues] = useState({ name: '', email: '', phone: '', message: '' });
   const [errors, setErrors] = useState<Errors>({});
   const [done, setDone] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   const set = (k: keyof typeof values, v: string) => {
     setValues((prev) => ({ ...prev, [k]: v }));
     setErrors((prev) => ({ ...prev, [k]: undefined }));
   };
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
     const next: Errors = {};
     if (values.name.trim().length < 2) next.name = 'Please enter your full name.';
@@ -29,7 +32,22 @@ export default function InquiryForm({ subject }: { subject: string }) {
       next.phone = 'Please enter a valid phone number, or leave it blank.';
     if (values.message.trim().length < 10) next.message = 'Please tell us a little more (min. 10 characters).';
     setErrors(next);
-    if (Object.keys(next).length === 0) setDone(true);
+    if (Object.keys(next).length !== 0) return;
+    setSending(true);
+    setSendError(null);
+    const res = await submitInquiry({
+      name: values.name.trim(),
+      email: values.email.trim(),
+      phone: values.phone.trim(),
+      subject,
+      message: values.message.trim(),
+    });
+    setSending(false);
+    if (!res.ok) {
+      setSendError(res.error ?? 'Could not send. Please call us directly.');
+      return;
+    }
+    setDone(true);
   };
 
   if (done) {
@@ -40,7 +58,7 @@ export default function InquiryForm({ subject }: { subject: string }) {
           Your enquiry about <strong>{subject}</strong> has been noted. For the fastest response, please
           call <a className="font-semibold text-navy-deep underline" href="tel:+917724985563">77249-85563</a> or{' '}
           <a className="font-semibold text-navy-deep underline" href="tel:+919131644787">91316-44787</a>.
-          Demo form — nothing was transmitted online.
+          We have saved your enquiry and will call you back.
         </p>
       </div>
     );
@@ -118,10 +136,11 @@ export default function InquiryForm({ subject }: { subject: string }) {
         />
         {errors.message ? <p id="inq-msg-err" role="alert" className="mt-1.5 text-sm text-red-800">{errors.message}</p> : null}
       </div>
-      <button type="submit" className="btn btn-primary w-full sm:w-auto">
-        Request site visit
+      <button type="submit" disabled={sending} className="btn btn-primary w-full sm:w-auto disabled:opacity-60">
+        {sending ? 'Sending…' : 'Request site visit'}
       </button>
-      <p className="text-[13px] text-ink-faint">Demo form — for instant help call 77249-85563 / 91316-44787.</p>
+      {sendError ? <p role="alert" className="text-sm text-red-800">{sendError}</p> : null}
+      <p className="text-[13px] text-ink-faint">For instant help call 77249-85563 / 91316-44787.</p>
     </form>
   );
 }

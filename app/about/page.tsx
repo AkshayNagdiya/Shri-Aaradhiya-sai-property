@@ -8,6 +8,8 @@ import { legality } from '../../src/data/project';
 import { useCms } from '../../src/lib/cms';
 import { usePageMeta } from '../../src/lib/seo';
 
+export const dynamic = 'force-dynamic';
+
 export default function About() {
   const { project: PROJECT, banks } = useCms();
   usePageMeta(

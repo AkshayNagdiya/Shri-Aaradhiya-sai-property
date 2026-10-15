@@ -9,6 +9,7 @@ export const SiteSettings: GlobalConfig = {
     { name: 'brand', type: 'text', admin: { description: 'Shown as Shri Aaradhya Sai Property' } },
     { name: 'name', type: 'text', admin: { description: 'Flagship project name' } },
     { name: 'tagline', type: 'text' },
+    { name: 'heroTitle', type: 'text', admin: { description: 'Homepage hero headline' } },
     { name: 'heroOffer', type: 'text' },
     { name: 'location', type: 'text' },
     { name: 'invite', type: 'text' },

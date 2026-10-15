@@ -8,6 +8,8 @@ import Reveal from '../../src/components/Reveal';
 import { useCms } from '../../src/lib/cms';
 import { usePageMeta } from '../../src/lib/seo';
 
+export const dynamic = 'force-dynamic';
+
 export default function Plots() {
   const { project: PROJECT, plots } = useCms();
   usePageMeta(

@@ -6,7 +6,10 @@ import { Clock, Mail, MapPin, Phone } from 'lucide-react';
 import SectionHeading from '../../src/components/SectionHeading';
 import Reveal from '../../src/components/Reveal';
 import { useCms } from '../../src/lib/cms';
+import { submitInquiry } from '../../src/lib/inquiries';
 import { usePageMeta } from '../../src/lib/seo';
+
+export const dynamic = 'force-dynamic';
 
 interface Errs {
   name?: string;
@@ -23,13 +26,15 @@ export default function Contact() {
   const [v, setV] = useState({ name: '', email: '', phone: '', interest: '600–800 sq.ft. plot', message: '' });
   const [errs, setErrs] = useState<Errs>({});
   const [done, setDone] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   const set = (k: keyof typeof v, val: string) => {
     setV((p) => ({ ...p, [k]: val }));
     setErrs((p) => ({ ...p, [k]: undefined }));
   };
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
     const n: Errs = {};
     if (v.name.trim().length < 2) n.name = 'Please enter your name.';
@@ -37,7 +42,22 @@ export default function Contact() {
     if (v.phone.trim() && !/^[+\d][\d\s-]{6,14}$/.test(v.phone.trim())) n.phone = 'Please enter a valid phone number.';
     if (v.message.trim().length < 10) n.message = 'Please add a little detail (min. 10 characters).';
     setErrs(n);
-    if (Object.keys(n).length === 0) setDone(true);
+    if (Object.keys(n).length !== 0) return;
+    setSending(true);
+    setSendError(null);
+    const res = await submitInquiry({
+      name: v.name.trim(),
+      email: v.email.trim(),
+      phone: v.phone.trim(),
+      interest: v.interest,
+      message: v.message.trim(),
+    });
+    setSending(false);
+    if (!res.ok) {
+      setSendError(res.error ?? 'Could not send. Please call us directly.');
+      return;
+    }
+    setDone(true);
   };
 
   const errCls = (e?: string) => `field ${e ? 'border-red-700 ring-2 ring-red-700/15' : ''}`;
@@ -102,7 +122,7 @@ export default function Contact() {
               <p className="mt-3 leading-relaxed text-ink-muted">
                 Your visit request for a “{v.interest}” has been noted. For confirmation within the hour,
                 please call <a className="font-bold text-navy-deep underline" href={PROJECT.phones[0].href}>{PROJECT.phones[0].display}</a>.
-                Demo form — nothing was transmitted online.
+                We have saved your enquiry and will call you back.
               </p>
               <button
                 type="button"
@@ -147,8 +167,11 @@ export default function Contact() {
                 <textarea id="c-msg" rows={5} className={`${errCls(errs.message)} resize-y`} value={v.message} onChange={(e) => set('message', e.target.value)} placeholder="I’d like to visit this Sunday morning with family…" />
                 {errs.message ? <p role="alert" className="mt-1.5 text-sm text-red-800">{errs.message}</p> : null}
               </div>
-              <button type="submit" className="btn btn-primary mt-6 w-full sm:w-auto">Request site visit</button>
-              <p className="mt-3 text-[13px] text-ink-faint">Demo form — for instant help call {PROJECT.phones[0].display}.</p>
+              <button type="submit" disabled={sending} className="btn btn-primary mt-6 w-full sm:w-auto disabled:opacity-60">
+                {sending ? 'Sending…' : 'Request site visit'}
+              </button>
+              {sendError ? <p role="alert" className="mt-3 text-sm text-red-800">{sendError}</p> : null}
+              <p className="mt-3 text-[13px] text-ink-faint">For instant help call {PROJECT.phones[0].display}.</p>
             </form>
           )}
         </Reveal>

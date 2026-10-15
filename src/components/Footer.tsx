@@ -174,9 +174,9 @@ export default function Footer() {
           <div className="relative">
             <div
               aria-hidden
-              className="animate-spin-slow absolute -inset-3 rounded-full border border-dashed border-gold/50"
+              className="absolute -inset-3 rounded-full border border-dashed border-gold/50"
             />
-            <div aria-hidden className="absolute -inset-3 rounded-full bg-gold/15 blur-2xl" />
+            <div aria-hidden className="absolute -inset-3 rounded-full bg-gold/15 blur-xl" />
             <div className="relative h-44 w-44 overflow-hidden rounded-full ring-2 ring-gold md:h-56 md:w-56">
               <img
                 src="/images/vector-illustration-sai-baba-gold-matte-gradient-saibaba-portrait-245937046.jpg"

@@ -8,6 +8,8 @@ import type { GalleryImage } from '../../src/data/project';
 import { useCms } from '../../src/lib/cms';
 import { usePageMeta } from '../../src/lib/seo';
 
+export const dynamic = 'force-dynamic';
+
 function buildGroups(gallery: GalleryImage[]): { title: string; copy: string; items: GalleryImage[] }[] {
   return (
   ['Entrance', 'Gardens', 'Sports', 'Master Plan', 'Project'] as const

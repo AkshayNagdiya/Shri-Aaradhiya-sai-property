@@ -2,17 +2,21 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform, useVelocity } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import {
   ArrowDown,
   ArrowRight,
   ArrowUpRight,
   BadgeCheck,
   Check,
+  Clock,
+  Footprints,
   Landmark,
   MapPin,
   Minus,
+  Pause,
   Phone,
+  Play,
   Plus,
   ShieldCheck,
   Star,
@@ -64,50 +68,64 @@ const TOUR_COPY: Record<string, string> = {
   Project: 'The project story, board by board.',
 };
 
+/* What to actually check at each chapter when you visit. */
+const TOUR_TIPS: Record<string, string> = {
+  Entrance: 'Stand at the gate at 5 pm — check avenue width, guard room and how arrival feels.',
+  Gardens: 'Sit five minutes in the garden court — shade, breeze and upkeep tell the truth.',
+  Sports: 'Come after 4 pm — nets, turf bounce and evening light are best judged in play hours.',
+  'Master Plan': 'Ask for your plot number on the plan — check facing, road width and garden distance.',
+  Project: 'Ask for the RERA file and brochure — match every claim on the boards to paper.',
+};
+
+const TOUR_CHAPTERS = ['Entrance', 'Gardens', 'Sports', 'Master Plan', 'Project'] as const;
+
 function HorizontalTour() {
   const reduce = useReducedMotion();
   const { gallery } = useCms();
-  const targetRef = useRef<HTMLDivElement>(null);
-  const { scrollY, scrollYProgress } = useScroll({ target: targetRef });
   const images = gallery;
+  const total = images.length;
   const [stop, setStop] = useState(0);
-
-  useMotionValueEvent(scrollYProgress, 'change', (v) => {
-    if (images.length === 0) return;
-    setStop(Math.min(images.length - 1, Math.max(0, Math.round(v * (images.length - 1)))));
-  });
-
-  const goTo = (i: number) => {
-    const el = targetRef.current;
-    if (!el || images.length === 0) return;
-    const clamped = Math.min(Math.max(i, 0), images.length - 1);
-    const top = el.getBoundingClientRect().top + window.scrollY;
-    const travel = el.offsetHeight - window.innerHeight;
-    window.scrollTo({ top: top + (clamped / images.length) * travel, behavior: 'smooth' });
-  };
+  const [playing, setPlaying] = useState(false);
+  const stripRef = useRef<HTMLDivElement>(null);
 
   const pad = (n: number) => String(n + 1).padStart(2, '0');
-  const total = String(images.length).padStart(2, '0');
-  const numX = useTransform(scrollYProgress, [0, 1], [0, -70]);
-  const cueOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
-  const scrollVel = useVelocity(scrollY);
-  const skewRaw = useTransform(scrollVel, [-4000, 4000], [5, -5]);
-  const skew = useTransform(skewRaw, (v) => Math.max(-6, Math.min(6, v)));
-  const stripRef = useRef<HTMLDivElement>(null);
-  const rise = {
-    hidden: { opacity: 0, y: 24 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease } },
+  const totalLabel = String(total).padStart(2, '0');
+  const clamp = (i: number) => Math.min(Math.max(i, 0), total - 1);
+
+  const goTo = (i: number) => {
+    if (total === 0) return;
+    setPlaying(false);
+    setStop(clamp(i));
   };
 
+  const step = (d: number) => {
+    if (total === 0) return;
+    setStop((s) => (s + d + total) % total);
+  };
+
+  /* Optional auto-walk — advances every few seconds, pauses on manual nav. */
   useEffect(() => {
-    setStop((s) => Math.min(s, Math.max(0, images.length - 1)));
-  }, [images.length]);
+    if (!playing || reduce || total <= 1) return;
+    const t = setInterval(() => setStop((s) => (s + 1) % total), 5200);
+    return () => clearInterval(t);
+  }, [playing, reduce, total]);
+
+  useEffect(() => {
+    setStop((s) => Math.min(s, Math.max(0, total - 1)));
+  }, [total]);
 
   useEffect(() => {
     stripRef.current
       ?.querySelector(`[data-i="${stop}"]`)
-      ?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      ?.scrollIntoView({ behavior: 'auto', inline: 'center', block: 'nearest' });
   }, [stop]);
+
+  /* Chapters present in this gallery, in walk order. */
+  const chapters = TOUR_CHAPTERS.filter((c) => images.some((g) => g.category === c));
+  const jumpToChapter = (c: string) => {
+    const i = images.findIndex((g) => g.category === c);
+    if (i >= 0) goTo(i);
+  };
 
   if (images.length === 0) return null;
 
@@ -143,33 +161,26 @@ function HorizontalTour() {
           aria-roledescription="carousel"
           aria-label="Guided project tour"
         >
-          {/* zoom-through backdrop — old stop flies past, new one settles in */}
+          {/* crossfade backdrop — cheap opacity-only fade, no scale loops */}
           <AnimatePresence initial={false}>
             <motion.div
               key={stop}
-              initial={{ opacity: 0, scale: 1.14 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.28 }}
-              transition={{ duration: 0.85, ease }}
-              className="absolute inset-0"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease }}
+              className="absolute inset-0 will-change-transform"
             >
-              <motion.img
+              <img
                 src={current.src}
                 alt=""
                 aria-hidden
+                loading={stop < 2 ? 'eager' : 'lazy'}
                 decoding="async"
-                animate={{ scale: [1, 1.07, 1] }}
-                transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
                 className="h-full w-full object-cover"
               />
             </motion.div>
           </AnimatePresence>
-          {/* silent preload reel so fast scrolls never flash empty */}
-          <div aria-hidden className="hidden">
-            {images.map((g) => (
-              <img key={g.src} src={g.src} alt="" loading="lazy" decoding="async" />
-            ))}
-          </div>
           <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-navy-deep via-navy-deep/30 to-navy-deep/60" />
           <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-navy-deep/70 via-transparent to-navy-deep/30" />
 
@@ -228,7 +239,7 @@ function HorizontalTour() {
                 >
                   <motion.p
                     variants={rise}
-                    style={{ x: numX, skewX: skew }}
+                    style={{ x: numX }}
                     aria-hidden
                     className="text-outline-ivory font-display text-[6rem] leading-none lg:text-[7.5rem]"
                   >
@@ -865,7 +876,7 @@ export default function Home() {
               loading="lazy"
               decoding="async"
               style={reduce ? undefined : { y: introY }}
-              className="aspect-[16/9] w-full scale-[1.18] object-cover"
+              className="aspect-[16/9] w-full scale-[1.18] object-cover will-change-transform"
             />
             <span className="absolute bottom-4 left-4 bg-navy-deep/70 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.22em] text-ivory backdrop-blur-sm">
               The entry avenue

@@ -13,20 +13,19 @@ export default function Hero() {
 
   return (
     <section aria-label="Introduction" className="grain relative flex min-h-[100svh] items-stretch overflow-hidden bg-navy-deep">
-      {/* backdrop with slow ken-burns drift */}
+      {/* backdrop — single entrance settle only (no infinite ken-burns loop: that kept the GPU compositing a fullscreen bitmap forever and caused the lag) */}
       <motion.div
-        initial={reduce ? false : { scale: 1.14 }}
+        initial={reduce ? false : { scale: 1.08 }}
         animate={{ scale: 1 }}
-        transition={{ duration: 2.4, ease }}
-        className="absolute inset-0"
+        transition={{ duration: 1.6, ease }}
+        className="absolute inset-0 will-change-transform"
         aria-hidden
       >
-        <motion.img
+        <img
           src="/images/main-gate.jpg"
           alt=""
           fetchPriority="high"
-          animate={reduce ? undefined : { scale: [1, 1.07, 1] }}
-          transition={{ duration: 26, repeat: Infinity, ease: 'easeInOut' }}
+          decoding="async"
           className="h-full w-full object-cover [object-position:center_32%]"
         />
       </motion.div>
